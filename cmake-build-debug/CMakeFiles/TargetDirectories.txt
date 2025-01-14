@@ -1,0 +1,3 @@
+C:/Users/zhang/Marco/Code/Projects/MemorySystemSim/cmake-build-debug/CMakeFiles/MemorySystemSim.dir
+C:/Users/zhang/Marco/Code/Projects/MemorySystemSim/cmake-build-debug/CMakeFiles/edit_cache.dir
+C:/Users/zhang/Marco/Code/Projects/MemorySystemSim/cmake-build-debug/CMakeFiles/rebuild_cache.dir

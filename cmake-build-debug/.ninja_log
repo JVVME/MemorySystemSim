@@ -1,0 +1,14 @@
+# ninja log v6
+23	250	7585301840811188	CMakeFiles/StorageSystemSim.dir/src/main_memory.c.obj	4ffe57e7f62f2254
+15	263	7585301840727291	CMakeFiles/StorageSystemSim.dir/src/cache.c.obj	ef94c0d6d5d60f9a
+6	376	7585301840631105	CMakeFiles/StorageSystemSim.dir/main.c.obj	d1171ecbec17b4c9
+3	230	7585304675675169	build.ninja	1c6edae0cfc1ae1d
+376	617	7585301844333643	StorageSystemSim.exe	3bcf08b5e66bfbf1
+44	228	7585301841022669	CMakeFiles/StorageSystemSim.dir/src/register.c.obj	748ca21ef3142fcf
+33	262	7585301840907547	CMakeFiles/StorageSystemSim.dir/src/mmu.c.obj	ee8156be0c093a6e
+19	210	7585304691352336	CMakeFiles/MemorySystemSim.dir/src/main_memory.c.obj	d2cf78c0e5068851
+11	213	7585304691271352	CMakeFiles/MemorySystemSim.dir/src/cache.c.obj	ae44e74d6803341d
+2	225	7585304691182182	CMakeFiles/MemorySystemSim.dir/main.c.obj	5ea61642fcd6830e
+45	227	7585304691608719	CMakeFiles/MemorySystemSim.dir/src/register.c.obj	e6906fc332b75cab
+32	239	7585304691471669	CMakeFiles/MemorySystemSim.dir/src/mmu.c.obj	e8f5dcf6dd83dfec
+239	353	7585304693552168	MemorySystemSim.exe	ce82fdad7884ec86
