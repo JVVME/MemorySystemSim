@@ -12,3 +12,5 @@
 45	227	7585304691608719	CMakeFiles/MemorySystemSim.dir/src/register.c.obj	e6906fc332b75cab
 32	239	7585304691471669	CMakeFiles/MemorySystemSim.dir/src/mmu.c.obj	e8f5dcf6dd83dfec
 239	353	7585304693552168	MemorySystemSim.exe	ce82fdad7884ec86
+4	163	7585309950905486	CMakeFiles/MemorySystemSim.dir/main.c.obj	5ea61642fcd6830e
+164	274	7585309952510078	MemorySystemSim.exe	ce82fdad7884ec86

@@ -20,7 +20,7 @@ void pre_test();
 void program_run(int test_count, int write_scale);
 void info_print();
 
-int main(void) {
+int main(int argc, char *argv[]) {
     pre_test();
 
     cache_init();
@@ -31,6 +31,10 @@ int main(void) {
     time_count = 0.0;
     int test_count = 1024 * 4;
     int write_scale = 1024 * 16;
+    if (argc == 3) {
+        test_count = atoi(argv[1]);
+        write_scale = atoi(argv[2]);
+    }
 
     info_print();
     printf("Data write scale: %dB %dKB\n", write_scale, write_scale / 1024);
