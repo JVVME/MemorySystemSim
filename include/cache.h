@@ -13,6 +13,7 @@
 
 
 // L1 采用 GROUP_CAP 路组相联
+#define VIRTUAL_CACHE 1
 #define GROUP_CAP 2
 #define LRU_NUM GROUP_CAP
 #define GROUP_NUM CACHE_LINE_SIZE / GROUP_CAP
@@ -20,7 +21,7 @@
 #define L1_GROUP_DIGIT (MACHINE_DIGIT - 1 - __builtin_clz(GROUP_NUM))
 #define OFFSET_MASK ((1 << L1_OFFSET_DIGIT) -1)
 #define GROUP_MASK ((1 << (L1_GROUP_DIGIT + L1_OFFSET_DIGIT)) - 1 - OFFSET_MASK)
-#define TAG_MASK (((1 << (PM_DIGIT - L1_GROUP_DIGIT - L1_OFFSET_DIGIT)) - 1) << (L1_GROUP_DIGIT + L1_OFFSET_DIGIT))
+#define TAG_MASK (((1 << (PM_DIGIT + VIRTUAL_CACHE * (VM_DIGIT - PM_DIGIT) - L1_GROUP_DIGIT - L1_OFFSET_DIGIT)) - 1) << (L1_GROUP_DIGIT + L1_OFFSET_DIGIT))
 
 #define L1_CACHE_HIT_LATENCY (L1_CACHE_ACCESS_LATENCY + GROUP_CAP * MACHINE_CLOCK)
 #define L1_CACHE_MISS_DELAY (LRU_NUM * MACHINE_CLOCK + PHYSICAL_MEMORY_ACCESS_LATENCY)
@@ -44,6 +45,12 @@ void lru_join(uint32_t begin, uint32_t end, uint32_t index);
 void cache_rf_memory(uint32_t block_index, uint32_t cache_index);     //rf = read from
 void cache_rt_memory(uint32_t block_index, uint32_t cache_index);     //rt = write to
 uint32_t choose_to_swap(uint32_t begin, uint32_t end);
+
+uint8_t v_cache_read(uint32_t v_address);
+void v_cache_write(uint32_t v_address, uint8_t data);
+void v_cache_exchange(uint32_t v_address, uint32_t cts);
+
+
 
 
 

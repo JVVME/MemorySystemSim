@@ -90,6 +90,9 @@ uint8_t mmu_rf_memory(uint32_t p_addr) {
 }
 
 uint32_t v_addr_2_p_addr(uint32_t v_addr) {
+
+    TLB_count++;
+
     uint32_t vm_frame = (v_addr & VM_FRAME_MASK) >> PAGE_OFFSET_DIGIT;
     uint32_t page_offset = v_addr & PAGE_OFFSET_MASK;
 
@@ -101,6 +104,7 @@ uint32_t v_addr_2_p_addr(uint32_t v_addr) {
             p_addr = TLB[i].ppn;
             TLB[i].read = true;
             hit = true;
+            TLB_hit++;
             break;
         }
     }

@@ -3,6 +3,10 @@
 //
 
 #include "../include/cache.h"
+
+#include <stdio.h>
+
+#include "../include/mmu.h"
 // #include <stdio.h>
 
 
@@ -86,6 +90,9 @@ void cache_exchange(uint32_t p_address, uint32_t cts) {
 }
 
 uint8_t cache_read(uint32_t p_address) {
+
+    cache_count++;
+
     const uint8_t offset = p_address & OFFSET_MASK;
     const uint8_t group_num = (p_address  & GROUP_MASK) >> L1_OFFSET_DIGIT;
     const uint16_t tag = (p_address & TAG_MASK) >> (L1_OFFSET_DIGIT + L1_GROUP_DIGIT);
@@ -100,6 +107,7 @@ uint8_t cache_read(uint32_t p_address) {
         if (tag == L1_cache[i].tag && L1_cache[i].valid == true) {
             data = L1_cache[i].cache_block[offset];
             hit = true;
+            cache_hit++;
             lru_update(b_group, e_group, i);
             break;
         }
@@ -119,6 +127,9 @@ uint8_t cache_read(uint32_t p_address) {
 }
 
 void cache_write(uint32_t p_address, uint8_t data) {
+
+    cache_count++;
+
     const uint8_t offset = p_address & OFFSET_MASK;
     const uint8_t group_num = (p_address  & GROUP_MASK) >> L1_OFFSET_DIGIT;
     const uint16_t tag = (p_address & TAG_MASK) >> (L1_OFFSET_DIGIT + L1_GROUP_DIGIT);
@@ -132,6 +143,7 @@ void cache_write(uint32_t p_address, uint8_t data) {
             L1_cache[i].dirty = true;
             lru_update(b_group, e_group, i);
             time_count += L1_CACHE_HIT_LATENCY;
+            cache_hit++;
             return ;
         }
     }
@@ -156,3 +168,94 @@ void cache_flush() {
 
 }
 
+uint8_t v_cache_read(uint32_t v_address) {
+
+    cache_count++;
+
+    const uint8_t offset = v_address & OFFSET_MASK;
+    const uint8_t group_num = (v_address  & GROUP_MASK) >> L1_OFFSET_DIGIT;
+    const uint16_t tag = (v_address & TAG_MASK) >> (L1_OFFSET_DIGIT + L1_GROUP_DIGIT);
+
+    const uint32_t b_group = group_num * GROUP_CAP;
+    const uint32_t e_group = (group_num + 1) * GROUP_CAP;
+
+    uint8_t data = 0;
+    bool hit = false;
+
+    for (uint32_t i = b_group; i < e_group; i++) {
+        if (tag == L1_cache[i].tag && L1_cache[i].valid == true) {
+            data = L1_cache[i].cache_block[offset];
+            hit = true;
+            cache_hit++;
+            lru_update(b_group, e_group, i);
+            break;
+        }
+    }
+
+    time_count += L1_CACHE_HIT_LATENCY;
+
+    if (!hit) {
+        uint32_t cts = choose_to_swap(b_group, e_group);
+        v_cache_exchange(v_address, cts);
+        data = L1_cache[cts].cache_block[offset];
+        time_count += L1_CACHE_MISS_DELAY;
+    }
+
+    return data;
+
+}
+
+void v_cache_write(uint32_t v_address, uint8_t data) {
+
+    cache_count++;
+
+    const uint8_t offset = v_address & OFFSET_MASK;
+    const uint8_t group_num = (v_address  & GROUP_MASK) >> L1_OFFSET_DIGIT;
+    const uint16_t tag = (v_address & TAG_MASK) >> (L1_OFFSET_DIGIT + L1_GROUP_DIGIT);
+
+    const uint32_t b_group = group_num * GROUP_CAP;
+    const uint32_t e_group = (group_num + 1) * GROUP_CAP;
+
+    for (uint32_t i = b_group; i < e_group; i++) {
+        if (L1_cache[i].tag == tag && L1_cache[i].valid) {
+            L1_cache[i].cache_block[offset] = data;
+            L1_cache[i].dirty = true;
+            lru_update(b_group, e_group, i);
+            time_count += L1_CACHE_HIT_LATENCY;
+            cache_hit++;
+            return ;
+        }
+    }
+
+    uint32_t cts = choose_to_swap(b_group, e_group);
+    v_cache_exchange(v_address, cts);
+
+    L1_cache[cts].cache_block[offset] = data;
+    L1_cache[cts].dirty = true;
+
+    time_count += L1_CACHE_MISS_DELAY;
+
+}
+
+void v_cache_exchange(uint32_t v_address, uint32_t cts) {
+    uint32_t begin = ((v_address  & GROUP_MASK) >> L1_OFFSET_DIGIT ) * GROUP_CAP;
+    uint32_t end = (((v_address  & GROUP_MASK) >> L1_OFFSET_DIGIT ) + 1) * GROUP_CAP;
+    if (L1_cache[cts].valid == false) {
+        cache_rf_memory(v_addr_2_p_addr(v_address) >> L1_OFFSET_DIGIT, cts);
+        L1_cache[cts].tag = (v_address & TAG_MASK) >> (L1_OFFSET_DIGIT + L1_GROUP_DIGIT);
+        lru_join(begin, end, cts);
+        L1_cache[cts].dirty = false;
+        L1_cache[cts].valid = true;
+    }
+    else {
+        if (L1_cache[cts].dirty) {
+            uint32_t v_prefix = ((L1_cache[cts].tag << L1_GROUP_DIGIT) + (cts % GROUP_NUM)) << L1_OFFSET_DIGIT;
+            cache_rt_memory(v_addr_2_p_addr(v_prefix) >> L1_OFFSET_DIGIT, cts);
+            L1_cache[cts].dirty = false;
+        }
+        cache_rf_memory(v_addr_2_p_addr(v_address) >> L1_OFFSET_DIGIT, cts);
+        L1_cache[cts].tag = (v_address & TAG_MASK) >> (L1_OFFSET_DIGIT + L1_GROUP_DIGIT);
+        lru_update(begin, end, cts);
+        L1_cache[cts].valid = true;
+    }
+}

@@ -49,6 +49,10 @@
 #define L1_CACHE_ACCESS_LATENCY 3      // Cache∑√Œ —”≥Ÿ 3ns
 
 extern double time_count;
+extern int cache_count;
+extern int cache_hit;
+extern int TLB_count;
+extern int TLB_hit;
 
 #endif
 
